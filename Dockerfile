@@ -4,10 +4,11 @@ FROM node:22-slim AS frontend
 WORKDIR /build/client
 
 # Install dependencies first for better layer caching
-COPY client/package*.json ./
-# npm install (not npm ci) lets npm resolve platform-native bindings for Linux,
-# bypassing Windows-only entries (@rolldown/binding-win32-x64-msvc) in package-lock.json
-RUN npm install --prefer-offline
+# Copy only package.json — NOT package-lock.json — so npm resolves dependencies
+# fresh for Linux, ignoring the Windows-pinned @rolldown/binding-win32-x64-msvc
+# entry that gets written when npm install is run on Windows.
+COPY client/package.json ./
+RUN npm install
 
 # Copy source and build
 COPY client/ ./
