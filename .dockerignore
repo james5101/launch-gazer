@@ -1,0 +1,28 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+
+# Frontend — built inside Docker, not copied from host
+client/node_modules
+client/dist
+client/.vite
+
+# Dev / editor artifacts
+.DS_Store
+*.suo
+*.njsproj
+*.sln
+.idea
+.vscode
+
+# Docs
+*.md

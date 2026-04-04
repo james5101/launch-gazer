@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# Frontend
+client/node_modules/
+client/dist/
+client/.vite/
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Fly.io
+.fly/
