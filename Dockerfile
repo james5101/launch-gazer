@@ -5,7 +5,9 @@ WORKDIR /build/client
 
 # Install dependencies first for better layer caching
 COPY client/package*.json ./
-RUN npm ci
+# npm install (not npm ci) lets npm resolve platform-native bindings for Linux,
+# bypassing Windows-only entries (@rolldown/binding-win32-x64-msvc) in package-lock.json
+RUN npm install --prefer-offline
 
 # Copy source and build
 COPY client/ ./
