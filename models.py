@@ -12,6 +12,16 @@ class PadInfo(BaseModel):
     lon: float
 
 
+class StreamURL(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    url: str
+    title: str
+    description: str
+    feature_image: str | None   # thumbnail URL; empty string normalised to None
+    type_name: str              # flattened from vidURL["type"]["name"]
+
+
 class LaunchSummary(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -22,6 +32,8 @@ class LaunchSummary(BaseModel):
     scheduled_at: datetime | None
     status: str
     pad: PadInfo
+    streams: list[StreamURL] = Field(default_factory=list)
+    webcast_live: bool = False
 
 
 class WeatherConditions(BaseModel):

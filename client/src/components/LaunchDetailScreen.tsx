@@ -5,6 +5,7 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useDirection } from '@/hooks/useDirection'
 import { SkyView } from './SkyView'
 import { Countdown } from './Countdown'
+import { StreamsCard } from './StreamsCard'
 
 type SubScreen = 'info' | 'loading' | 'direction'
 
@@ -159,10 +160,13 @@ export function LaunchDetailScreen() {
       {/* Divider */}
       <div className="h-px bg-border mb-8" />
 
+      {/* Watch Live */}
+      <StreamsCard streams={launch.streams} webcastLive={launch.webcast_live} />
+
       {/* CTA */}
       <button
         onClick={handleFindDirection}
-        className="inline-flex items-center gap-2 bg-accent text-black text-sm font-semibold px-5 py-2.5 rounded hover:bg-accent/90 transition-colors tracking-wide uppercase"
+        className="mt-8 inline-flex items-center gap-2 bg-accent text-black text-sm font-semibold px-5 py-2.5 rounded hover:bg-accent/90 transition-colors tracking-wide uppercase"
       >
         Find My Viewing Direction
         <span>›</span>

@@ -5,6 +5,16 @@ export interface PadInfo {
   lon: number
 }
 
+export interface StreamURL {
+  url: string
+  title: string
+  description: string
+  /** Thumbnail image URL. Null when not provided by Launch Library 2. */
+  feature_image: string | null
+  /** Stream platform type e.g. "YouTube", "Twitter". */
+  type_name: string
+}
+
 export interface LaunchSummary {
   id: string
   name: string
@@ -13,6 +23,10 @@ export interface LaunchSummary {
   scheduled_at: string | null
   status: string
   pad: PadInfo
+  /** Available livestream links. Empty array when none posted yet. */
+  streams: StreamURL[]
+  /** True when at least one stream is currently live. */
+  webcast_live: boolean
 }
 
 export interface WeatherConditions {
