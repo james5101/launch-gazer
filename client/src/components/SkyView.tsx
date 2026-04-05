@@ -1,5 +1,6 @@
 import type { DirectionResponse, LaunchSummary } from '@/api/types'
 import { Countdown } from './Countdown'
+import { StreamsCard } from './StreamsCard'
 import { TwilightCard } from './TwilightCard'
 import { WeatherCard } from './WeatherCard'
 
@@ -127,8 +128,8 @@ export function SkyView({ launch, direction, onBack }: SkyViewProps) {
         {direction.visibility_note}
       </p>
 
-      {/* Cards section — scroll hint, weather, twilight plume */}
-      {(direction.weather || direction.twilight) && (
+      {/* Cards section — scroll hint, weather, twilight plume, streams */}
+      {(direction.weather || direction.twilight || launch.streams.length > 0 || launch.webcast_live) && (
         <div className="flex items-center gap-2 mt-6 mb-1">
           <div className="h-px flex-1 bg-border/30" />
           <span className="text-[10px] text-muted-foreground/50 tracking-widest">↓ SCROLL</span>
@@ -141,6 +142,7 @@ export function SkyView({ launch, direction, onBack }: SkyViewProps) {
       {direction.twilight && (
         <TwilightCard twilight={direction.twilight} />
       )}
+      <StreamsCard streams={launch.streams} webcastLive={launch.webcast_live} />
     </div>
   )
 }
