@@ -35,6 +35,7 @@ cd client && npm install
 ```
 # Backend (root)
 main.py                  FastAPI app, lifespan (shared httpx.AsyncClient), mounts client/dist in prod
+                         Also serves /favicon.svg explicitly
 config.py                pydantic-settings — reads from .env, all defaults provided
 dependencies.py          get_http_client() — injects app.state.http_client via Depends()
 models.py                All Pydantic v2 models (frozen=True throughout)
@@ -46,6 +47,10 @@ services/
   launches.py            Launch Library 2 API client + 5-min in-memory cache
   weather.py             Open-Meteo API client + 30-min in-memory cache
 requirements.txt         fastapi, uvicorn[standard], httpx, pydantic-settings
+Dockerfile               Multi-stage: node:22-slim builds React, python:3.12-slim runs FastAPI
+fly.toml                 Fly.io config — app=launch-gazer, region=iad, port=8080
+.github/workflows/
+  deploy.yml             GitHub Actions → flyctl deploy --remote-only (FLY_API_TOKEN secret)
 
 # Frontend (client/)
 client/
@@ -59,8 +64,9 @@ client/
       StarField.tsx      Canvas star background (160 stars, fixed, requestAnimationFrame)
       LaunchList.tsx     Mission select screen
       LaunchCard.tsx     Single mission row with live countdown
-      SkyView.tsx        Direction screen — SVG compass, bearing, weather card
+      SkyView.tsx        Direction screen — SVG compass, bearing, weather + twilight cards
       WeatherCard.tsx    Viewing conditions card with colour-coded likelihood badge
+      TwilightCard.tsx   Twilight plume predictor card — SVG geometry diagram, quality badge
       Countdown.tsx      Live ticking T-minus / LAUNCHED display
     hooks/
       useLaunches.ts     Fetches on mount, { launches, loading, error }
@@ -95,7 +101,8 @@ Returns bearing, distance, countdown, distance-based visibility note, weather co
 - `LaunchSummary` — id, name, provider, rocket, scheduled_at, status, pad
 - `WeatherConditions` — cloud_cover_pct, visibility_km, precipitation_probability_pct, description
 - `ViewingLikelihood` — score (0–100), label (Excellent/Good/Fair/Poor/Very Poor), summary
-- `DirectionResponse` — bearing_deg, bearing_label, distance_km, elevation_deg, visibility_note, countdown_seconds, weather, likelihood
+- `TwilightPlumeInfo` — sun_altitude_deg, shadow_altitude_km, quality, headline, description, best_window_start_sec, best_window_end_sec
+- `DirectionResponse` — bearing_deg, bearing_label, distance_km, elevation_deg, visibility_note, countdown_seconds, weather, likelihood, twilight
 
 All models use `ConfigDict(frozen=True)`.
 
@@ -108,6 +115,14 @@ All models use `ConfigDict(frozen=True)`.
   - Cloud cover: 70 pts weight
   - Precipitation probability: 20 pts weight
   - Visibility (1–10 km range): 10 pts weight
+- `sun_altitude_deg(lat, lon, dt) -> float` — NOAA Solar Calculator (pure Python, no deps)
+- `twilight_plume_prediction(lat, lon, launch_dt) -> TwilightPlumeInfo` — quality tiers:
+  - ≥0°: No effect (daytime)
+  - −1° to 0°: Good
+  - −4° to −1°: Excellent
+  - −6° to −4°: Good
+  - −12° to −6°: Possible
+  - <−12°: No effect (night)
 
 ## Conventions & Patterns
 - **All new endpoints** get `response_model=` explicitly set
@@ -121,13 +136,21 @@ All models use `ConfigDict(frozen=True)`.
 - Elevation is always `0.0` / "Look toward the horizon" — rocket is treated as being at the launch pad
 - No trajectory modelling yet
 
+## Deployment
+- **Live URL**: https://launchgazer.app/ (Fly.io, app name: `launch-gazer`, region: `iad`)
+- **Manual deploy**: `fly deploy` from project root (uses `Dockerfile`, pushes to Fly.io remote builder)
+- **GitHub Actions CI** (`deploy.yml`): auto-deploys on push to `main` using `FLY_API_TOKEN` secret — **currently broken** (secret resolution issue; user deploying manually)
+- **Docker build**: Node stage copies only `client/package.json` (NOT `package*.json`) to exclude Windows-pinned `package-lock.json`, then `npm install` resolves Linux-native bindings
+
 ## Windows-Specific Notes (Vite 8)
 Vite 8 uses rolldown + lightningcss which require platform native binaries npm may skip on Windows. If `npm run dev` fails, manually install:
 ```bash
 npm install @rolldown/binding-win32-x64-msvc lightningcss-win32-x64-msvc @tailwindcss/oxide-win32-x64-msvc
 ```
+**Do NOT save these to `package.json` dependencies** — they cause `EBADPLATFORM` in Linux Docker builds.
 
 ## Next Features (Back Pocket)
 1. **Trajectory arc** — `GET /launches/{id}/arc?lat=&lon=` returning bearing + elevation at T+1/2/5/10 min using destination orbit inclination + launch azimuth. New model: `ArcPoint(time_offset_sec, bearing_deg, elevation_deg)`. Elevation = `atan(altitude / horizontal_distance)`.
 2. **Real-time tracking** — WebSocket or SSE endpoint pushing updated bearing/elevation during the live launch window. Needs trajectory first.
 3. **Tests** — `calculations.py` pure functions are ideal unit test targets. Verify NYC→KSC bearing ~206°, haversine distance ~1476 km, scoring edge cases.
+4. ~~**Twilight plume predictor**~~ — DONE (2026-04-04)

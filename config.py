@@ -15,5 +15,8 @@ class Settings(BaseSettings):
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"
     weather_cache_ttl_seconds: int = 1800  # 30 minutes
 
+    # Public-facing base URL (used in sitemap, robots.txt)
+    base_url: str = "https://launchgazer.app"
+
 
 settings = Settings()

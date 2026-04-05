@@ -4,9 +4,10 @@ from typing import AsyncGenerator
 
 import httpx
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
+from config import settings
 from routers import direction, launches
 
 _CLIENT_DIST = Path(__file__).parent / "client" / "dist"
@@ -28,6 +29,28 @@ app = FastAPI(
 
 app.include_router(launches.router)
 app.include_router(direction.router)
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots() -> PlainTextResponse:
+    return PlainTextResponse(
+        f"User-agent: *\nAllow: /\nSitemap: {settings.base_url}/sitemap.xml\n"
+    )
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap() -> PlainTextResponse:
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        "  <url>\n"
+        f"    <loc>{settings.base_url}/</loc>\n"
+        "    <changefreq>hourly</changefreq>\n"
+        "    <priority>1.0</priority>\n"
+        "  </url>\n"
+        "</urlset>\n"
+    )
+    return PlainTextResponse(xml, media_type="application/xml")
 
 # Serve the built React app in production (client/dist must exist)
 if _CLIENT_DIST.exists():
