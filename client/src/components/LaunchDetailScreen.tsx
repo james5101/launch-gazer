@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useLaunch } from '@/hooks/useLaunch'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { useDirection } from '@/hooks/useDirection'
@@ -10,10 +10,13 @@ type SubScreen = 'info' | 'loading' | 'direction'
 
 export function LaunchDetailScreen() {
   const { launchId } = useParams<{ launchId: string }>()
+  const location = useLocation()
+  const autoStart = (location.state as { autoStart?: boolean } | null)?.autoStart === true
+
   const { launch, loading: launchLoading, error: launchError } = useLaunch(launchId)
 
   const { lat, lon, loading: geoLoading, error: geoError, request: requestGeo } = useGeolocation()
-  const [viewingMode, setViewingMode] = useState(false)
+  const [viewingMode, setViewingMode] = useState(autoStart)
 
   // Only fetch direction once the user has opted in — pass null launchId until then
   const { direction, loading: dirLoading, error: dirError } = useDirection(
@@ -26,6 +29,12 @@ export function LaunchDetailScreen() {
   const isWorking = viewingMode && (geoLoading || dirLoading)
   const hasDirection = viewingMode && direction && !dirLoading
   const error = geoError ?? dirError
+
+  // Auto-trigger geolocation when navigating from the list
+  useEffect(() => {
+    if (autoStart) requestGeo()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart])
 
   const handleFindDirection = () => {
     setViewingMode(true)

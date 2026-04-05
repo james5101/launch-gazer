@@ -17,6 +17,7 @@ export function LaunchCard({ launch, index }: LaunchCardProps) {
   return (
     <Link
       to={`/launches/${launch.id}`}
+      state={{ autoStart: true }}
       className="group w-full text-left border-b border-border/50 py-4 px-1 flex items-start gap-4 hover:bg-white/[0.02] transition-colors relative"
     >
       {/* Hover accent bar */}
