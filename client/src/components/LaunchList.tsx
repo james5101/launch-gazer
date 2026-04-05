@@ -1,13 +1,8 @@
-import type { LaunchSummary } from '@/api/types'
 import { useLaunches } from '@/hooks/useLaunches'
 import { LaunchCard } from './LaunchCard'
 import { LaunchGazerLogo } from './LaunchGazerLogo'
 
-interface LaunchListProps {
-  onSelect: (launch: LaunchSummary) => void
-}
-
-export function LaunchList({ onSelect }: LaunchListProps) {
+export function LaunchList() {
   const { launches, loading, error } = useLaunches()
 
   return (
@@ -60,7 +55,7 @@ export function LaunchList({ onSelect }: LaunchListProps) {
 
       {/* Launch rows */}
       {!loading && !error && launches.map((launch, i) => (
-        <LaunchCard key={launch.id} launch={launch} index={i} onClick={onSelect} />
+        <LaunchCard key={launch.id} launch={launch} index={i} />
       ))}
     </div>
   )

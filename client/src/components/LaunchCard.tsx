@@ -1,13 +1,13 @@
+import { Link } from 'react-router-dom'
 import type { LaunchSummary } from '@/api/types'
 import { Countdown } from './Countdown'
 
 interface LaunchCardProps {
   launch: LaunchSummary
   index: number
-  onClick: (launch: LaunchSummary) => void
 }
 
-export function LaunchCard({ launch, index, onClick }: LaunchCardProps) {
+export function LaunchCard({ launch, index }: LaunchCardProps) {
   const formattedDate = launch.scheduled_at
     ? new Date(launch.scheduled_at).toLocaleDateString(undefined, {
         month: 'short', day: 'numeric', year: 'numeric',
@@ -15,8 +15,9 @@ export function LaunchCard({ launch, index, onClick }: LaunchCardProps) {
     : 'TBD'
 
   return (
-    <button
-      onClick={() => onClick(launch)}
+    <Link
+      to={`/launches/${launch.id}`}
+      state={{ autoStart: true }}
       className="group w-full text-left border-b border-border/50 py-4 px-1 flex items-start gap-4 hover:bg-white/[0.02] transition-colors relative"
     >
       {/* Hover accent bar */}
@@ -50,6 +51,6 @@ export function LaunchCard({ launch, index, onClick }: LaunchCardProps) {
 
       {/* Arrow */}
       <span className="text-muted-foreground group-hover:text-accent transition-colors text-lg shrink-0 self-center">›</span>
-    </button>
+    </Link>
   )
 }
