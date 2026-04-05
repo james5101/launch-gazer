@@ -27,10 +27,48 @@
 
     <style>
       html, body { overflow-x: hidden; margin: 0; }
+      /* Static shell — active before React mounts, then replaced */
+      #ss-bg{position:fixed;inset:0;background:#000;z-index:0;pointer-events:none}
+      #ss-s1,#ss-s2{position:fixed;top:0;left:0;width:1px;height:1px;background:transparent;pointer-events:none;z-index:1;border-radius:50%}
+      #ss-s1{box-shadow:15px 45px 0 rgba(255,255,255,.7),43px 312px 0 rgba(255,255,255,.4),67px 178px 0 rgba(255,255,255,.6),89px 534px 0 rgba(255,255,255,.3),112px 67px 0 rgba(255,255,255,.8),134px 423px 0 rgba(255,255,255,.5),156px 256px 0 rgba(255,255,255,.4),178px 712px 0 rgba(255,255,255,.6),201px 89px 0 rgba(255,255,255,.3),223px 578px 0 rgba(255,255,255,.7),245px 334px 0 rgba(255,255,255,.5),267px 812px 0 rgba(255,255,255,.4),289px 167px 0 rgba(255,255,255,.8),312px 456px 0 rgba(255,255,255,.5),334px 23px 0 rgba(255,255,255,.7),356px 645px 0 rgba(255,255,255,.4),378px 289px 0 rgba(255,255,255,.6),400px 756px 0 rgba(255,255,255,.3),423px 123px 0 rgba(255,255,255,.8),445px 512px 0 rgba(255,255,255,.5),467px 378px 0 rgba(255,255,255,.6),489px 867px 0 rgba(255,255,255,.4),511px 234px 0 rgba(255,255,255,.7),534px 601px 0 rgba(255,255,255,.3),556px 45px 0 rgba(255,255,255,.8),578px 712px 0 rgba(255,255,255,.5),601px 167px 0 rgba(255,255,255,.6),623px 534px 0 rgba(255,255,255,.4),645px 345px 0 rgba(255,255,255,.7),667px 789px 0 rgba(255,255,255,.5),689px 89px 0 rgba(255,255,255,.8),712px 456px 0 rgba(255,255,255,.3),734px 623px 0 rgba(255,255,255,.6),756px 212px 0 rgba(255,255,255,.5),778px 867px 0 rgba(255,255,255,.4),800px 378px 0 rgba(255,255,255,.7),823px 567px 0 rgba(255,255,255,.3),845px 134px 0 rgba(255,255,255,.8),867px 712px 0 rgba(255,255,255,.5),890px 289px 0 rgba(255,255,255,.6),912px 645px 0 rgba(255,255,255,.4),934px 23px 0 rgba(255,255,255,.7),956px 512px 0 rgba(255,255,255,.5),978px 378px 0 rgba(255,255,255,.8),1001px 756px 0 rgba(255,255,255,.3),1023px 167px 0 rgba(255,255,255,.6),1045px 534px 0 rgba(255,255,255,.4),1067px 289px 0 rgba(255,255,255,.7),1089px 823px 0 rgba(255,255,255,.5),1112px 456px 0 rgba(255,255,255,.3),1134px 67px 0 rgba(255,255,255,.8),1156px 623px 0 rgba(255,255,255,.5),1178px 312px 0 rgba(255,255,255,.6),1201px 756px 0 rgba(255,255,255,.4),1223px 189px 0 rgba(255,255,255,.7),1245px 534px 0 rgba(255,255,255,.3),1267px 412px 0 rgba(255,255,255,.8),1289px 867px 0 rgba(255,255,255,.5),1312px 234px 0 rgba(255,255,255,.6),1334px 601px 0 rgba(255,255,255,.4),1356px 78px 0 rgba(255,255,255,.7);animation:ss-twinkle 4s ease-in-out infinite}
+      #ss-s2{box-shadow:1378px 445px 0 rgba(255,255,255,.5),1400px 712px 0 rgba(255,255,255,.3),1423px 156px 0 rgba(255,255,255,.8),1445px 534px 0 rgba(255,255,255,.5),1467px 289px 0 rgba(255,255,255,.6),1489px 756px 0 rgba(255,255,255,.4),1512px 123px 0 rgba(255,255,255,.7),1534px 478px 0 rgba(255,255,255,.3),1556px 645px 0 rgba(255,255,255,.8),1578px 234px 0 rgba(255,255,255,.5),1601px 812px 0 rgba(255,255,255,.6),1623px 367px 0 rgba(255,255,255,.4),1645px 89px 0 rgba(255,255,255,.7),1667px 534px 0 rgba(255,255,255,.5),1689px 712px 0 rgba(255,255,255,.3),1712px 178px 0 rgba(255,255,255,.8),1734px 456px 0 rgba(255,255,255,.5),1756px 623px 0 rgba(255,255,255,.6),1778px 312px 0 rgba(255,255,255,.4),1800px 789px 0 rgba(255,255,255,.7),78px 756px 0 rgba(255,255,255,.5),321px 189px 0 rgba(255,255,255,.4),567px 823px 0 rgba(255,255,255,.6),734px 56px 0 rgba(255,255,255,.7),901px 634px 0 rgba(255,255,255,.3),1123px 812px 0 rgba(255,255,255,.5),1289px 34px 0 rgba(255,255,255,.7),1456px 867px 0 rgba(255,255,255,.4),1623px 512px 0 rgba(255,255,255,.6),1789px 145px 0 rgba(255,255,255,.3),234px 645px 0 rgba(255,255,255,.5),489px 134px 0 rgba(255,255,255,.8),812px 789px 0 rgba(255,255,255,.4),1056px 412px 0 rgba(255,255,255,.6),1345px 678px 0 rgba(255,255,255,.3),1612px 267px 0 rgba(255,255,255,.7),45px 423px 0 rgba(255,255,255,.5),623px 267px 0 rgba(255,255,255,.6),956px 89px 0 rgba(255,255,255,.8),1178px 623px 0 rgba(255,255,255,.4),1512px 412px 0 rgba(255,255,255,.5),1756px 534px 0 rgba(255,255,255,.6),389px 712px 0 rgba(255,255,255,.3),734px 445px 0 rgba(255,255,255,.7),1067px 567px 0 rgba(255,255,255,.4),1400px 234px 0 rgba(255,255,255,.8),1689px 623px 0 rgba(255,255,255,.5),167px 534px 0 rgba(255,255,255,.6),534px 756px 0 rgba(255,255,255,.3),901px 312px 0 rgba(255,255,255,.7),1234px 489px 0 rgba(255,255,255,.5),1567px 178px 0 rgba(255,255,255,.4),1845px 623px 0 rgba(255,255,255,.6),100px 890px 0 rgba(255,255,255,.5),450px 45px 0 rgba(255,255,255,.7),800px 890px 0 rgba(255,255,255,.4),1150px 45px 0 rgba(255,255,255,.6),1500px 890px 0 rgba(255,255,255,.3),1850px 400px 0 rgba(255,255,255,.7);animation:ss-twinkle 4s ease-in-out infinite 2s}
+      @keyframes ss-twinkle{0%,100%{opacity:.6}50%{opacity:1}}
+      #ss-content{position:relative;z-index:10;min-height:100vh;padding:3rem 1.5rem;box-sizing:border-box;font-family:system-ui,sans-serif;color:#fff}
+      #ss-inner{max-width:38rem;margin:0 auto}
+      #ss-label{color:#00E5FF;font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;margin:0 0 .75rem;font-family:monospace}
+      #ss-content h1{font-size:clamp(2rem,5vw,2.75rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:0 0 1.25rem}
+      #ss-content h2{font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;margin:0 0 1rem;color:#fff}
+      #ss-content p{color:#aaa;line-height:1.7;margin:0 0 1.5rem;font-size:.9375rem}
+      #ss-content ul{list-style:none;padding:0;margin:0 0 2rem;display:flex;flex-direction:column;gap:.875rem;font-size:.9rem;line-height:1.6;color:#aaa}
+      #ss-content li span{color:#00E5FF;margin-right:.4rem}
+      #ss-content strong{color:#fff}
+      #ss-footer{color:#555;font-size:.8rem;line-height:1.6;margin:0}
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="ss-bg" aria-hidden="true"></div>
+      <div id="ss-s1" aria-hidden="true"></div>
+      <div id="ss-s2" aria-hidden="true"></div>
+      <div id="ss-content">
+        <div id="ss-inner">
+          <p id="ss-label">Rocket Launch Tracker</p>
+          <h1>Where to look for the next rocket launch</h1>
+          <p>LaunchGazer tells you exactly where to point your eyes in the sky for any upcoming rocket launch — SpaceX Falcon 9, Rocket Lab Electron, ULA Vulcan, and more. Enter your location, pick a mission, and instantly get a compass bearing, real-time viewing conditions, and a twilight plume forecast from wherever you are.</p>
+          <p>Whether tonight's launch is visible from your city depends on your distance from the pad and the weather overhead. LaunchGazer calculates both in seconds — no account or app download needed.</p>
+          <h2>What you get</h2>
+          <ul>
+            <li><span>›</span><strong>Compass bearing</strong> — the precise direction from your location to the launch pad, computed for every mission worldwide</li>
+            <li><span>›</span><strong>Viewing conditions</strong> — live cloud cover, visibility, and precipitation probability at your exact position</li>
+            <li><span>›</span><strong>Twilight plume predictor</strong> — know in advance whether the rocket exhaust plume will glow pink and gold in the last light of dusk or first light of dawn</li>
+            <li><span>›</span><strong>Live countdown</strong> — T-minus timer for each mission so you're ready at the window</li>
+          </ul>
+          <h2>Supported launch sites</h2>
+          <p>Kennedy Space Center, Cape Canaveral Space Force Station, Vandenberg Space Force Base, Wallops Flight Facility, and launch pads worldwide. If it's in the launch schedule, LaunchGazer can point you to it.</p>
+          <p id="ss-footer">Launch data from Launch Library 2. Weather from Open-Meteo. Works on any device with a modern browser.</p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
