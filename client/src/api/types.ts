@@ -28,6 +28,21 @@ export interface ViewingLikelihood {
   summary: string
 }
 
+export interface TwilightPlumeInfo {
+  /** Sun's altitude at launch time in degrees. Negative = below horizon. */
+  sun_altitude_deg: number
+  /** Altitude in km where the exhaust plume enters direct sunlight. Null for daytime/night. */
+  shadow_altitude_km: number | null
+  /** Overall quality tier. */
+  quality: 'Excellent' | 'Good' | 'Possible' | 'No effect'
+  headline: string
+  description: string
+  /** T+ seconds when the plume first becomes illuminated. */
+  best_window_start_sec: number | null
+  /** T+ seconds when the rocket typically leaves easy view (~8 min). */
+  best_window_end_sec: number | null
+}
+
 export interface DirectionResponse {
   launch_id: string
   launch_name: string
@@ -40,4 +55,5 @@ export interface DirectionResponse {
   countdown_seconds: number | null
   weather: WeatherConditions | null
   likelihood: ViewingLikelihood | null
+  twilight: TwilightPlumeInfo | null
 }

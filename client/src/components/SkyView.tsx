@@ -1,5 +1,6 @@
 import type { DirectionResponse, LaunchSummary } from '@/api/types'
 import { Countdown } from './Countdown'
+import { TwilightCard } from './TwilightCard'
 import { WeatherCard } from './WeatherCard'
 
 interface SkyViewProps {
@@ -126,16 +127,19 @@ export function SkyView({ launch, direction, onBack }: SkyViewProps) {
         {direction.visibility_note}
       </p>
 
-      {/* Weather — scroll hint chevron if present */}
+      {/* Cards section — scroll hint, weather, twilight plume */}
+      {(direction.weather || direction.twilight) && (
+        <div className="flex items-center gap-2 mt-6 mb-1">
+          <div className="h-px flex-1 bg-border/30" />
+          <span className="text-[10px] text-muted-foreground/50 tracking-widest">↓ SCROLL</span>
+          <div className="h-px flex-1 bg-border/30" />
+        </div>
+      )}
       {direction.weather && direction.likelihood && (
-        <>
-          <div className="flex items-center gap-2 mt-6 mb-1">
-            <div className="h-px flex-1 bg-border/30" />
-            <span className="text-[10px] text-muted-foreground/50 tracking-widest">↓ SCROLL</span>
-            <div className="h-px flex-1 bg-border/30" />
-          </div>
-          <WeatherCard weather={direction.weather} likelihood={direction.likelihood} />
-        </>
+        <WeatherCard weather={direction.weather} likelihood={direction.likelihood} />
+      )}
+      {direction.twilight && (
+        <TwilightCard twilight={direction.twilight} />
       )}
     </div>
   )

@@ -3,7 +3,14 @@ from datetime import datetime, timezone
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from calculations import bearing, bearing_label, haversine, viewing_likelihood, visibility_note
+from calculations import (
+    bearing,
+    bearing_label,
+    haversine,
+    twilight_plume_prediction,
+    viewing_likelihood,
+    visibility_note,
+)
 from dependencies import get_http_client
 from models import DirectionResponse
 from services.launches import get_launch_by_id
@@ -51,6 +58,13 @@ async def launch_direction(
         else None
     )
 
+    # Twilight plume — pure calculation, always available when launch time is known
+    twilight = (
+        twilight_plume_prediction(lat, lon, launch.scheduled_at)
+        if launch.scheduled_at is not None
+        else None
+    )
+
     return DirectionResponse(
         launch_id=launch.id,
         launch_name=launch.name,
@@ -63,4 +77,5 @@ async def launch_direction(
         countdown_seconds=countdown,
         weather=weather,
         likelihood=likelihood,
+        twilight=twilight,
     )

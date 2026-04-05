@@ -41,6 +41,18 @@ class ViewingLikelihood(BaseModel):
     summary: str
 
 
+class TwilightPlumeInfo(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    sun_altitude_deg: float          # sun's altitude at launch time; negative = below horizon
+    shadow_altitude_km: float | None # altitude (km) where plume first enters direct sunlight
+    quality: str                     # "Excellent" | "Good" | "Possible" | "No effect"
+    headline: str
+    description: str
+    best_window_start_sec: int | None  # T+ seconds when plume becomes illuminated
+    best_window_end_sec: int | None    # T+ seconds when rocket typically leaves easy view
+
+
 class DirectionResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -55,3 +67,4 @@ class DirectionResponse(BaseModel):
     countdown_seconds: int | None
     weather: WeatherConditions | None = None
     likelihood: ViewingLikelihood | None = None
+    twilight: TwilightPlumeInfo | None = None
