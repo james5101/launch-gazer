@@ -9,6 +9,7 @@ const qualityStyles: Record<string, string> = {
   'Excellent': 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10',
   'Good':      'text-lime-400 border-lime-400/30 bg-lime-400/10',
   'Possible':  'text-yellow-400 border-yellow-400/30 bg-yellow-400/10',
+  'No effect': 'text-muted-foreground border-border/40 bg-white/[0.02]',
 }
 
 function fmtT(sec: number): string {
@@ -112,10 +113,8 @@ function PlumeDiagram({ sunAlt, shadowKm }: { sunAlt: number; shadowKm: number |
 }
 
 export function TwilightCard({ twilight }: TwilightCardProps) {
-  // Don't render for daytime or full-night launches — not interesting to hobbyists
-  if (twilight.quality === 'No effect') return null
-
   const badgeStyle = qualityStyles[twilight.quality] ?? qualityStyles['Possible']
+  const isNoEffect = twilight.quality === 'No effect'
 
   return (
     <div className="mt-4 border border-border/50 rounded-lg p-4 bg-white/[0.02]">
@@ -133,18 +132,20 @@ export function TwilightCard({ twilight }: TwilightCardProps) {
       {/* Headline */}
       <p className="text-sm font-medium mb-2 leading-snug">{twilight.headline}</p>
 
-      {/* Geometry diagram */}
-      <div className="mb-3 rounded-md overflow-hidden border border-border/30">
-        <PlumeDiagram sunAlt={twilight.sun_altitude_deg} shadowKm={twilight.shadow_altitude_km} />
-      </div>
+      {/* Geometry diagram — only for twilight launches */}
+      {!isNoEffect && (
+        <div className="mb-3 rounded-md overflow-hidden border border-border/30">
+          <PlumeDiagram sunAlt={twilight.sun_altitude_deg} shadowKm={twilight.shadow_altitude_km} />
+        </div>
+      )}
 
       {/* Description */}
       <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
         {twilight.description}
       </p>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Stats grid — only for twilight launches */}
+      {!isNoEffect && <div className="grid grid-cols-2 gap-2">
         <div className="bg-white/[0.03] rounded-md p-2.5 border border-border/30">
           <div className="text-[10px] text-muted-foreground mb-1">Sun Altitude</div>
           <div className="text-sm font-mono font-semibold">
@@ -172,7 +173,7 @@ export function TwilightCard({ twilight }: TwilightCardProps) {
             </div>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   )
 }
