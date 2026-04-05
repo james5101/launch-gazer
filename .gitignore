@@ -24,3 +24,5 @@ client/.vite/
 
 # Fly.io
 .fly/
+
+.claude
