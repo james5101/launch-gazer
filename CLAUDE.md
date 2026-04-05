@@ -149,8 +149,36 @@ npm install @rolldown/binding-win32-x64-msvc lightningcss-win32-x64-msvc @tailwi
 ```
 **Do NOT save these to `package.json` dependencies** — they cause `EBADPLATFORM` in Linux Docker builds.
 
-## Next Features (Back Pocket)
-1. **Trajectory arc** — `GET /launches/{id}/arc?lat=&lon=` returning bearing + elevation at T+1/2/5/10 min using destination orbit inclination + launch azimuth. New model: `ArcPoint(time_offset_sec, bearing_deg, elevation_deg)`. Elevation = `atan(altitude / horizontal_distance)`.
-2. **Real-time tracking** — WebSocket or SSE endpoint pushing updated bearing/elevation during the live launch window. Needs trajectory first.
-3. **Tests** — `calculations.py` pure functions are ideal unit test targets. Verify NYC→KSC bearing ~206°, haversine distance ~1476 km, scoring edge cases.
-4. ~~**Twilight plume predictor**~~ — DONE (2026-04-04)
+## SEO Status (as of 2026-04-05)
+All tracked as GitHub issues on `james5101/launch-gazer`.
+
+### Done
+- Meta tags: title, description, Open Graph, Twitter/X card, canonical — `client/index.html`
+- `/robots.txt` and `/sitemap.xml` FastAPI endpoints — `main.py`
+- `base_url` setting added to `config.py` (default: `https://launchgazer.app`)
+- Registered on Google Search Console and Bing Webmaster Tools
+- Sitemap submitted to both
+
+### Pending (issues)
+- james5101/launch-gazer#3 — Create OG image (`client/public/og-image.png`, 1200×630 PNG)
+- james5101/launch-gazer#4 — Per-launch URL pages with server-rendered meta tags
+- james5101/launch-gazer#5 — JSON-LD Event structured data (depends on #4)
+- james5101/launch-gazer#6 — Server-render landing page copy on `/`
+- james5101/launch-gazer#7 — Blog/guide content strategy (long-term)
+
+## Backlog (GitHub Issues)
+All tracked at https://github.com/james5101/launch-gazer/issues
+
+| Issue | Title |
+|-------|-------|
+| #2  | Fix GitHub Actions CI — FLY_API_TOKEN secret not resolving |
+| #3  | Create OG image for social sharing |
+| #4  | SEO: Per-launch URL pages with server-rendered meta tags |
+| #5  | SEO: Add JSON-LD Event structured data to launch pages |
+| #6  | SEO: Server-render landing page copy on / |
+| #7  | SEO: Blog/guide content strategy |
+| #8  | Feature: Trajectory arc endpoint |
+| #9  | Feature: Real-time bearing/elevation tracking during launch |
+| #10 | Tests: Unit tests for calculations.py |
+
+~~**Twilight plume predictor**~~ — DONE (2026-04-04), not tracked as issue
