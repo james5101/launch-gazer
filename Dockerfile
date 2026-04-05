@@ -24,7 +24,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source
-COPY main.py config.py models.py calculations.py dependencies.py ./
+COPY main.py config.py models.py calculations.py dependencies.py template.py ./
 COPY routers/ ./routers/
 COPY services/ ./services/
 
