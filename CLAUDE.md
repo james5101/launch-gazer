@@ -70,9 +70,11 @@ client/
       LaunchCard.tsx     Single mission row; <Link to="/launches/:id" state={{ autoStart: true }}>
       LaunchDetailScreen.tsx  Detail page — info/loading/direction sub-states; autoStart skips info
                               screen when navigating from list; direct URLs show info page first
-      SkyView.tsx        Direction screen — SVG compass, bearing, weather + twilight cards
+      SkyView.tsx        Direction screen — SVG compass, bearing, weather + twilight + streams cards
       WeatherCard.tsx    Viewing conditions card with colour-coded likelihood badge
       TwilightCard.tsx   Twilight plume predictor card — SVG geometry diagram, quality badge
+      StreamsCard.tsx    Watch Live card — stream links with thumbnails, pulsing LIVE badge,
+                         empty state for launches with no streams yet
       Countdown.tsx      Live ticking T-minus / LAUNCHED display
     hooks/
       useLaunches.ts     Fetches on mount, { launches, loading, error }
@@ -108,7 +110,8 @@ Returns bearing, distance, countdown, distance-based visibility note, weather co
 
 ## Key Models (`models.py`)
 - `PadInfo` — launch pad name, location string, lat, lon
-- `LaunchSummary` — id, name, provider, rocket, scheduled_at, status, pad
+- `StreamURL` — url, title, description, feature_image (str|None), type_name (flattened from LL2's `type.name`)
+- `LaunchSummary` — id, name, provider, rocket, scheduled_at, status, pad, streams (list[StreamURL], default []), webcast_live (bool, default False)
 - `WeatherConditions` — cloud_cover_pct, visibility_km, precipitation_probability_pct, description
 - `ViewingLikelihood` — score (0–100), label (Excellent/Good/Fair/Poor/Very Poor), summary
 - `TwilightPlumeInfo` — sun_altitude_deg, shadow_altitude_km, quality, headline, description, best_window_start_sec, best_window_end_sec
@@ -149,7 +152,7 @@ All models use `ConfigDict(frozen=True)`.
 ## Deployment
 - **Live URL**: https://launchgazer.app/ (Fly.io, app name: `launch-gazer`, region: `iad`)
 - **Manual deploy**: `fly deploy` from project root (uses `Dockerfile`, pushes to Fly.io remote builder)
-- **GitHub Actions CI** (`deploy.yml`): auto-deploys on push to `main` using `FLY_API_TOKEN` secret — **currently broken** (secret resolution issue; user deploying manually)
+- **GitHub Actions CI** (`deploy.yml`): auto-deploys on push to `main` using `FLY_API_TOKEN` secret — **working** (fixed 2026-04-05)
 - **Docker build**:
   - Node stage copies only `client/package.json` (NOT `package*.json`) to exclude Windows-pinned `package-lock.json`, then `npm install` resolves Linux-native bindings
   - Python stage `COPY` line **explicitly names every root-level `.py` file**. Any new module (e.g. `template.py`) must be added to this line or it silently won't exist in the image → `ModuleNotFoundError` → 502 on startup
@@ -186,7 +189,6 @@ All tracked at https://github.com/james5101/launch-gazer/issues
 
 | Issue | Title |
 |-------|-------|
-| #2  | Fix GitHub Actions CI — FLY_API_TOKEN secret not resolving |
 | #3  | Create OG image for social sharing |
 | #5  | SEO: Add JSON-LD Event structured data to launch pages |
 | #6  | SEO: Server-render landing page copy on / |
@@ -197,3 +199,8 @@ All tracked at https://github.com/james5101/launch-gazer/issues
 
 ~~**Twilight plume predictor**~~ — DONE (2026-04-04), not tracked as issue
 ~~**Per-launch URL pages / SSR meta tags (#4)**~~ — DONE (2026-04-05, PR #12)
+~~**Fix GitHub Actions CI (#2)**~~ — DONE (2026-04-05)
+~~**Livestream URLs**~~ — DONE (2026-04-05), not tracked as issue
+  - `StreamURL` model + `streams`/`webcast_live` fields on `LaunchSummary`
+  - `_parse_stream()` helper in `services/launches.py` — defensive, malformed entries filtered
+  - `StreamsCard.tsx` on SkyView direction screen — thumbnails, external links, pulsing LIVE badge, empty state
