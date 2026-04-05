@@ -4,9 +4,23 @@ from typing import Any
 import httpx
 
 from config import settings
-from models import LaunchSummary, PadInfo
+from models import LaunchSummary, PadInfo, StreamURL
 
 _cache: dict[str, Any] = {"data": None, "fetched_at": 0.0}
+
+
+def _parse_stream(raw_vid: Any) -> StreamURL | None:
+    """Parse a single vidURL entry from Launch Library 2. Returns None on any error."""
+    try:
+        return StreamURL(
+            url=raw_vid["url"],
+            title=raw_vid.get("title") or "",
+            description=raw_vid.get("description") or "",
+            feature_image=raw_vid.get("feature_image") or None,
+            type_name=raw_vid.get("type", {}).get("name") or "Stream",
+        )
+    except (KeyError, ValueError, TypeError):
+        return None
 
 
 def _parse_launch(raw: dict[str, Any]) -> LaunchSummary | None:
@@ -18,6 +32,10 @@ def _parse_launch(raw: dict[str, Any]) -> LaunchSummary | None:
             lat=float(pad_raw["latitude"]),
             lon=float(pad_raw["longitude"]),
         )
+        raw_vids = raw.get("vidURLs") or []
+        streams = [s for v in raw_vids if (s := _parse_stream(v)) is not None]
+        webcast_live = bool(raw.get("webcastLive", False))
+
         return LaunchSummary(
             id=raw["id"],
             name=raw.get("name", "Unknown launch"),
@@ -26,6 +44,8 @@ def _parse_launch(raw: dict[str, Any]) -> LaunchSummary | None:
             scheduled_at=raw.get("net"),
             status=raw.get("status", {}).get("name", "Unknown"),
             pad=pad,
+            streams=streams,
+            webcast_live=webcast_live,
         )
     except (KeyError, ValueError, TypeError):
         return None
