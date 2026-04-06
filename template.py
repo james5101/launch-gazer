@@ -28,7 +28,7 @@ def render_launch_html(launch: LaunchSummary) -> str:
     rocket = html.escape(launch.rocket)
     pad_name = html.escape(launch.pad.name)
     pad_location = html.escape(launch.pad.location)
-    scheduled = html.escape(launch.scheduled_at or "TBD")
+    scheduled = html.escape(launch.scheduled_at.isoformat() if launch.scheduled_at else "TBD")
 
     title = f"{name} — LaunchGazer"
     description = (
