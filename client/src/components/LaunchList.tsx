@@ -57,6 +57,19 @@ export function LaunchList() {
       {!loading && !error && launches.map((launch, i) => (
         <LaunchCard key={launch.id} launch={launch} index={i} />
       ))}
+
+      {/* Footer */}
+      <div className="mt-16 pt-6 border-t border-border/30 text-center">
+        <p className="text-[10px] text-muted-foreground/50 tracking-[0.15em] uppercase font-mono">
+          Built for space nerds ·{' '}
+          <a
+            href="mailto:feedback@launchgazer.app"
+            className="hover:text-accent transition-colors"
+          >
+            Send feedback
+          </a>
+        </p>
+      </div>
     </div>
   )
 }
