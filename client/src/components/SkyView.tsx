@@ -1,4 +1,6 @@
 import type { DirectionResponse, LaunchSummary } from '@/api/types'
+import { useCompassHeading } from '@/hooks/useCompassHeading'
+import { angleDelta } from '@/lib/utils'
 import { Countdown } from './Countdown'
 import { StreamsCard } from './StreamsCard'
 import { TwilightCard } from './TwilightCard'
@@ -22,8 +24,16 @@ const CARDINAL = [
   { label: 'W', deg: 270 },
 ]
 
+const ON_TARGET_TOLERANCE = 15
+
 export function SkyView({ launch, direction, onBack }: SkyViewProps) {
   const dotPos = bearingToXY(direction.bearing_deg, 72)
+  const compass = useCompassHeading()
+
+  const isOnTarget =
+    compass.active && compass.heading !== null
+      ? Math.abs(angleDelta(compass.heading, direction.bearing_deg)) <= ON_TARGET_TOLERANCE
+      : false
 
   return (
     <div className="relative z-10 w-full max-w-2xl mx-auto px-4 py-10">
@@ -50,51 +60,89 @@ export function SkyView({ launch, direction, onBack }: SkyViewProps) {
 
       {/* Main content: compass + bearing label — stacks on mobile */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 mb-8">
-        {/* SVG Compass — scales down on mobile */}
-        <div className="shrink-0 self-center sm:self-auto">
-          <svg width="160" height="160" viewBox="0 0 200 200" aria-label="Compass" className="sm:w-[200px] sm:h-[200px]">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-            <circle cx="100" cy="100" r="72" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-            {Array.from({ length: 36 }, (_, i) => {
-              const angle = (i * 10 * Math.PI) / 180
-              const isMajor = i % 9 === 0
-              const r1 = isMajor ? 82 : 86
-              const r2 = 90
-              return (
-                <line
-                  key={i}
-                  x1={100 + r1 * Math.cos(angle - Math.PI / 2)}
-                  y1={100 + r1 * Math.sin(angle - Math.PI / 2)}
-                  x2={100 + r2 * Math.cos(angle - Math.PI / 2)}
-                  y2={100 + r2 * Math.sin(angle - Math.PI / 2)}
-                  stroke={isMajor ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}
-                  strokeWidth={isMajor ? 1.5 : 0.75}
-                />
-              )
-            })}
-            {CARDINAL.map(({ label, deg }) => {
-              const pos = bearingToXY(deg, 76)
-              return (
-                <text
-                  key={label}
-                  x={pos.x}
-                  y={pos.y + 4}
-                  textAnchor="middle"
-                  fill={label === 'N' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)'}
-                  fontSize="9"
-                  fontFamily="JetBrains Mono, monospace"
-                  fontWeight="600"
-                >
-                  {label}
-                </text>
-              )
-            })}
-            <line x1="100" y1="100" x2={dotPos.x} y2={dotPos.y} stroke="rgba(0,229,255,0.25)" strokeWidth="1" strokeDasharray="3 3" />
-            <circle cx={dotPos.x} cy={dotPos.y} r="10" fill="rgba(0,229,255,0.12)" />
-            <circle cx={dotPos.x} cy={dotPos.y} r="6" fill="rgba(0,229,255,0.25)" />
-            <circle cx={dotPos.x} cy={dotPos.y} r="4" fill="#00E5FF" />
-            <circle cx="100" cy="100" r="3" fill="rgba(255,255,255,0.6)" />
-          </svg>
+        {/* SVG Compass — rotates with device when compass is active */}
+        <div className="shrink-0 self-center sm:self-auto flex flex-col items-center">
+          <div
+            style={{
+              transform: compass.active && compass.heading !== null
+                ? `rotate(${-compass.heading}deg)`
+                : undefined,
+              transition: compass.active ? 'transform 150ms ease-out' : undefined,
+              willChange: compass.active ? 'transform' : undefined,
+            }}
+          >
+            <svg width="160" height="160" viewBox="0 0 200 200" aria-label="Compass" className="sm:w-[200px] sm:h-[200px]">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <circle cx="100" cy="100" r="72" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+              {Array.from({ length: 36 }, (_, i) => {
+                const angle = (i * 10 * Math.PI) / 180
+                const isMajor = i % 9 === 0
+                const r1 = isMajor ? 82 : 86
+                const r2 = 90
+                return (
+                  <line
+                    key={i}
+                    x1={100 + r1 * Math.cos(angle - Math.PI / 2)}
+                    y1={100 + r1 * Math.sin(angle - Math.PI / 2)}
+                    x2={100 + r2 * Math.cos(angle - Math.PI / 2)}
+                    y2={100 + r2 * Math.sin(angle - Math.PI / 2)}
+                    stroke={isMajor ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}
+                    strokeWidth={isMajor ? 1.5 : 0.75}
+                  />
+                )
+              })}
+              {CARDINAL.map(({ label, deg }) => {
+                const pos = bearingToXY(deg, 76)
+                return (
+                  <text
+                    key={label}
+                    x={pos.x}
+                    y={pos.y + 4}
+                    textAnchor="middle"
+                    fill={label === 'N' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)'}
+                    fontSize="9"
+                    fontFamily="JetBrains Mono, monospace"
+                    fontWeight="600"
+                  >
+                    {label}
+                  </text>
+                )
+              })}
+              <line x1="100" y1="100" x2={dotPos.x} y2={dotPos.y} stroke={isOnTarget ? 'rgba(0,255,136,0.35)' : 'rgba(0,229,255,0.25)'} strokeWidth="1" strokeDasharray="3 3" />
+              <circle cx={dotPos.x} cy={dotPos.y} r="10" fill={isOnTarget ? 'rgba(0,255,136,0.2)' : 'rgba(0,229,255,0.12)'} className={isOnTarget ? 'animate-pulse' : ''} />
+              <circle cx={dotPos.x} cy={dotPos.y} r="6" fill={isOnTarget ? 'rgba(0,255,136,0.35)' : 'rgba(0,229,255,0.25)'} />
+              <circle cx={dotPos.x} cy={dotPos.y} r="4" fill={isOnTarget ? '#00FF88' : '#00E5FF'} />
+              <circle cx="100" cy="100" r="3" fill="rgba(255,255,255,0.6)" />
+            </svg>
+          </div>
+
+          {/* Compass controls */}
+          {compass.supported && !compass.active && (
+            <button
+              onClick={() => compass.start()}
+              className="mt-3 text-[10px] text-accent border border-accent/30 rounded px-3 py-1.5 hover:bg-accent/10 transition-colors tracking-[0.15em] uppercase font-mono"
+            >
+              Enable Compass
+            </button>
+          )}
+          {compass.active && (
+            <button
+              onClick={compass.stop}
+              className="mt-3 text-[10px] text-muted-foreground border border-border/30 rounded px-3 py-1.5 hover:bg-white/5 transition-colors tracking-[0.15em] uppercase font-mono"
+            >
+              Disable Compass
+            </button>
+          )}
+          {compass.permissionState === 'denied' && (
+            <p className="mt-3 text-[10px] text-muted-foreground/70 text-center max-w-[200px]">
+              Compass access was denied. Check your browser settings to enable it.
+            </p>
+          )}
+          {isOnTarget && (
+            <div className="mt-2 text-[10px] text-[#00FF88] tracking-[0.2em] uppercase font-mono font-semibold animate-pulse">
+              On Target
+            </div>
+          )}
         </div>
 
         {/* Bearing info — full width on mobile so it doesn't clip */}
@@ -108,6 +156,11 @@ export function SkyView({ launch, direction, onBack }: SkyViewProps) {
           <div className="text-muted-foreground text-sm mt-2">
             {direction.elevation_label}
           </div>
+          {compass.active && compass.heading !== null && (
+            <div className="text-muted-foreground/70 text-xs mt-2 font-mono">
+              You're facing {Math.round(compass.heading)}°
+            </div>
+          )}
         </div>
       </div>
 
